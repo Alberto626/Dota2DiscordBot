@@ -12,7 +12,7 @@ import javax.security.auth.login.LoginException;
 public class DiscordBot {
 
     public static void main(String[] args) throws LoginException, InterruptedException {
-        JDA jda = JDABuilder.createDefault(Token.token)//GitIgnored Token class
+        JDA jda = JDABuilder.createDefault(Token.TOKEN)//GitIgnored Token class
                 .setActivity(Activity.playing("Your Mother"))
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .addEventListeners(new MessageResponses(), new SlashCommands())
