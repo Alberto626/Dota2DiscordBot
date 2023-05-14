@@ -6,17 +6,14 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.utils.FileUpload;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Array;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 public class SlashCommands extends ListenerAdapter {
     @Override
@@ -24,7 +21,7 @@ public class SlashCommands extends ListenerAdapter {
         if(event.getName().equals("fart")) {
             String x = "you just farted";
             event.deferReply().queue();
-            event.getHook().sendMessage(x).queue(); //setEphemeral is to only send command only to you to prevent discord cloggin messages
+            event.getHook().sendMessage(x).queue(); //setEphemeral is to only send command only to you to prevent discord clogging messages
         }
         if(event.getName().equals("match")) {
             event.deferReply().queue();
@@ -57,8 +54,6 @@ public class SlashCommands extends ListenerAdapter {
                 event.getHook().sendMessage("Something is wrong with the request").queue();
                 return;
             }
-
-            event.getHook().sendMessage("This works").queue();
         }
         if(event.getName().equals("testpic")) {
             event.deferReply().queue();

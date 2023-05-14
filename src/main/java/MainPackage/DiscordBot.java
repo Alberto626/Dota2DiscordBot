@@ -22,7 +22,7 @@ public class DiscordBot {
             scanner = new Scanner(file);
         }
         catch(FileNotFoundException ex) {
-            System.out.println("hello world");
+            System.out.println("make some changes");
             return;
         }
         JDA jda = JDABuilder.createDefault(scanner.nextLine())//GitIgnored Token class
