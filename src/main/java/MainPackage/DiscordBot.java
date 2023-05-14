@@ -8,11 +8,24 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import javax.security.auth.login.LoginException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 
 public class DiscordBot {
 
     public static void main(String[] args) throws LoginException, InterruptedException {
-        JDA jda = JDABuilder.createDefault(Token.TOKEN)//GitIgnored Token class
+
+        File file = new File("src/main/resources/token.txt");
+        Scanner scanner;
+        try {
+            scanner = new Scanner(file);
+        }
+        catch(FileNotFoundException ex) {
+            System.out.println("hello world");
+            return;
+        }
+        JDA jda = JDABuilder.createDefault(scanner.nextLine())//GitIgnored Token class
                 .setActivity(Activity.playing("Your Mother"))
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .addEventListeners(new MessageResponses(), new SlashCommands())
