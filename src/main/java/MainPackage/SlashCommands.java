@@ -7,15 +7,38 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 
 public class SlashCommands extends ListenerAdapter {
+    private HashMap<Integer, String> map;
+    public SlashCommands() {
+        super();
+        readToMap();
+    }
+    private void readToMap() {
+        try {
+            Scanner s = new Scanner(new File("src/main/resources/hero_names.txt"));
+            map = new HashMap<>();
+            while(s.hasNextLine()) {
+                String[] str = s.nextLine().split(":");
+                map.put(Integer.parseInt(str[0]), str[1]);
+            }
+            s.close();
+        }
+        catch(FileNotFoundException ex) {
+            System.out.println("File is breaking here");
+        }
+    }
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if(event.getName().equals("fart")) {
@@ -61,7 +84,7 @@ public class SlashCommands extends ListenerAdapter {
         }
 
     }
-    public EmbedBuilder builder(JsonNode json) {// LOOK up embeds
+    private EmbedBuilder builder(JsonNode json) {// LOOK up embeds
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("Dota 2 Match: " + json.get("match_id"));// this will show the game id// Example is [radiant victory](LINK)
         eb.setDescription(getVictor(json) + " Victory");//Find the winner
@@ -85,17 +108,17 @@ public class SlashCommands extends ListenerAdapter {
         eb.addField("Dmg Dealt",dire.get(5), true);
         eb.addField("Player",dire.get(6),true);
         eb.setImage("https://liquipedia.net/commons/images/8/85/Lifestealer_Large.png");
+        eb.setUrl("https://www.dotabuff.com/matches/" + json.get("match_id"));
         return eb;
     }
-    public String getVictor(JsonNode json) {
+    private String getVictor(JsonNode json) {
         return json.get("radiant_win").asBoolean() ? "Radiant": "Dire";
     }
-    public String heroes(JsonNode json) {//TODO find a way to get hero names with just the id
-
-        return "";
+    private String heroName(int id) {//TODO find a way to get hero names with just the id
+        return map.get(id);
     }
     //File starts at main
-    public List<String> matchInfo(JsonNode json, int rd) {//rd is radiant or dire
+    private List<String> matchInfo(JsonNode json, int rd) {//rd is radiant or dire
         JsonNode jn = json.get("players");
         StringBuilder heroes = new StringBuilder();//0
         StringBuilder kills = new StringBuilder();
@@ -108,7 +131,7 @@ public class SlashCommands extends ListenerAdapter {
         if(rd == 0) {//radiant
             for(int x = 0; x < jn.size()/2; x++) {//radiant heroes
                 if(x == jn.size()/2 -1) {//if last iteration
-                    heroes.append(jn.get(x).get("hero_id"));
+                    heroes.append(heroName(jn.get(x).get("hero_id").asInt()));
                     kills.append(jn.get(x).get("kills"));
                     deaths.append(jn.get(x).get("deaths"));
                     assist.append(jn.get(x).get("assists"));
@@ -117,7 +140,8 @@ public class SlashCommands extends ListenerAdapter {
                     player.append(jn.get(x).get("personaname"));//yes this is correct
                     continue;
                 }
-                heroes.append(jn.get(x).get("hero_id") + "\n");
+                heroes.append(heroName(jn.get(x).get("hero_id").asInt()) + "\n");
+                //heroes.append(jn.get(x).get("hero_id") + "\n");
                 kills.append(jn.get(x).get("kills") + "\n");
                 deaths.append(jn.get(x).get("deaths") + "\n");
                 assist.append(jn.get(x).get("assists") + "\n");
@@ -129,7 +153,7 @@ public class SlashCommands extends ListenerAdapter {
         else {//dire
             for(int x = jn.size()/2; x < jn.size(); x++) {//dire heros
                 if(x == jn.size() -1) {
-                    heroes.append(jn.get(x).get("hero_id"));
+                    heroes.append(heroName(jn.get(x).get("hero_id").asInt()));
                     kills.append(jn.get(x).get("kills"));
                     deaths.append(jn.get(x).get("deaths"));
                     assist.append(jn.get(x).get("assists"));
@@ -138,7 +162,7 @@ public class SlashCommands extends ListenerAdapter {
                     player.append(jn.get(x).get("personaname"));//yes this is correct
                     continue;
                 }
-                heroes.append(jn.get(x).get("hero_id") + "\n");
+                heroes.append(heroName(jn.get(x).get("hero_id").asInt()) + "\n");
                 kills.append(jn.get(x).get("kills") + "\n");
                 deaths.append(jn.get(x).get("deaths") + "\n");
                 assist.append(jn.get(x).get("assists") + "\n");
@@ -158,11 +182,11 @@ public class SlashCommands extends ListenerAdapter {
         return list;
 
     }
-    public JsonNode getJson(URL url) throws IOException {
+    private JsonNode getJson(URL url) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readTree(url);
     }
-    public int checkForStatusCode(URL url) throws IOException {//validate the http response
+    private int checkForStatusCode(URL url) throws IOException {//validate the http response
         HttpURLConnection http = (HttpURLConnection) url.openConnection();
         int status = http.getResponseCode();
         http.disconnect();
